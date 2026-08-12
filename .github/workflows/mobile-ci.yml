@@ -2,6 +2,16 @@ name: Android CI
 
 on:
   workflow_call:
+    inputs:
+      gradle-tasks:
+        description: >
+          Gradle tasks to run. The default suits a single-module KMP project
+          where composeApp applies com.android.application. Projects that split
+          the Android app into its own module (as AGP 9 requires) should pass
+          their own tasks, e.g. ":androidApp:assembleDebug test".
+        type: string
+        required: false
+        default: ":composeApp:assembleDebug test"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,7 +29,7 @@ jobs:
         uses: gpunto/workflows/actions/jvm-setup@main
 
       - name: Build Android and test
-        run: ./gradlew :composeApp:assembleDebug test
+        run: ./gradlew ${{ inputs.gradle-tasks }}
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
